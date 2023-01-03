@@ -33,10 +33,14 @@ def create_t5_encoder_decoder(pretrained_version="t5-base"):
         decoder_with_lm_head: pytorch t5 decoder with a language modeling head
     """
 
-    if 'mt5' in pretrained_version:
-        model = MT5ForConditionalGeneration.from_pretrained(pretrained_version, use_auth_token=get_auth_token())
+    if "mt5" in pretrained_version:
+        model = MT5ForConditionalGeneration.from_pretrained(
+            pretrained_version, use_auth_token=get_auth_token()
+        )
     else:
-        model = T5ForConditionalGeneration.from_pretrained(pretrained_version, use_auth_token=get_auth_token())
+        model = T5ForConditionalGeneration.from_pretrained(
+            pretrained_version, use_auth_token=get_auth_token()
+        )
 
     return turn_model_into_encoder_decoder(model)
 
@@ -93,7 +97,9 @@ def generate_onnx_representation(
         pretrained_version, output_path, quantized=False
     )
 
-    model_config = AutoConfig.from_pretrained(pretrained_version, use_auth_token=get_auth_token())
+    model_config = AutoConfig.from_pretrained(
+        pretrained_version, use_auth_token=get_auth_token()
+    )
 
     # Though these are dummy inputs, ORT optimizations do reference these values,
     # so it is worth using values as close to production as possible
@@ -167,8 +173,7 @@ def generate_onnx_representation(
         }
 
         dyn_pkv = {
-            "pkv_{}".format(i): dyn_axis_pkv
-            for i in range(len(flat_past_key_values))
+            "pkv_{}".format(i): dyn_axis_pkv for i in range(len(flat_past_key_values))
         }
 
         dyn_axis_params = {**dyn_axis, **dyn_pkv}
@@ -281,8 +286,8 @@ def quantize(models_name_or_path):
             model_input=model_name,
             model_output=output_model_name,
             per_channel=True,
-            reduce_range=True, # should be the same as per_channel
-            activation_type=QuantType.QUInt8,
+            reduce_range=True,  # should be the same as per_channel
+            # activation_type=QuantType.QUInt8,
             weight_type=QuantType.QInt8,  # per docs, signed is faster on most CPUs
             optimize_model=False,
         )  # op_types_to_quantize=['MatMul', 'Relu', 'Add', 'Mul' ],
